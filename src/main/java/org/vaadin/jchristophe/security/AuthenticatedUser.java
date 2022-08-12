@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import org.vaadin.jchristophe.data.entity.User;
 import org.vaadin.jchristophe.data.service.UserRepository;
 
+import javax.servlet.ServletException;
+
 @Component
 public class AuthenticatedUser {
 
@@ -33,13 +35,13 @@ public class AuthenticatedUser {
         return getAuthentication().map(authentication -> userRepository.findByUsername(authentication.getName()));
     }
 
-    public void logout() {
-        UI.getCurrent().getPage().setLocation(SecurityConfiguration.LOGOUT_URL);
-    }
 
-    public void logoutInJava() {
-        SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
-        logoutHandler.logout(VaadinServletRequest.getCurrent().getHttpServletRequest(), null, null);
+    public void logout() {
+        try {
+            VaadinServletRequest.getCurrent().getHttpServletRequest().logout();
+        } catch (ServletException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
