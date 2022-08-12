@@ -41,7 +41,7 @@ public class SecurityConfiguration extends VaadinWebSecurityConfigurerAdapter {
         setLoginView(http, LoginView.class, LOGOUT_SUCCESS_URL);
         String privateSecretKeyToChange = "JKJDSKLDJdJSisdjsdfjmkdjdfkljkJKLjlk";
         http.rememberMe().key(privateSecretKeyToChange).tokenValiditySeconds(7200).userDetailsService(this.userDetailsService);
-        http.logout().logoutRequestMatcher(new AntPathRequestMatcher(LOGOUT_URL, "GET"))
+        http.logout()
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID", "remember-me");
     }
