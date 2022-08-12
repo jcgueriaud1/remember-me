@@ -1,7 +1,63 @@
 # Remember Me
 
-This project can be used as a starting point to create your own Vaadin application with Spring Boot.
-It contains all the necessary configuration and some placeholder files to get you started.
+This project is based on start.vaadin.com.
+
+It's an example of an implementation of Spring Security "Remember Me".
+
+## Steps to add remember me
+
+### Add the Remember Me checkbox in the login view
+
+You need to create a checkbox with name="remember-me" that will be posted in the login form.It's unfortunately not supported by the Vaadin login component.
+```
+    public void addRememberMeCheckbox() {
+        Checkbox rememberMe = new Checkbox("Remember me");
+        rememberMe.getElement().setAttribute("name", "remember-me");
+        Element loginFormElement = getElement();
+        Element element = rememberMe.getElement();
+        loginFormElement.appendChild(element);
+
+        String executeJsForFieldString = "const field = document.getElementById($0);" +
+                "if(field) {" +
+                "   field.after($1)" +
+                "} else {" +
+                "   console.error('could not find field', $0);" +
+                "}";
+        getElement().executeJs(executeJsForFieldString, "vaadinLoginPassword", element);
+    }
+```
+It might not work in Vaadin 14 since the structure of the component is different.
+
+https://github.com/jcgueriaud1/remember-me/blob/remember-me/src/main/java/org/vaadin/jchristophe/views/login/LoginView.java#L47
+
+### Add the Spring configuration
+
+```
+   @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        super.configure(http);
+        setLoginView(http, LoginView.class, LOGOUT_SUCCESS_URL);
+        String privateSecretKeyToChange = "JKJDSKLDJdJSisdjsdfjmkdjdfkljkJKLjlk";
+        http.rememberMe().key(privateSecretKeyToChange).tokenValiditySeconds(7200).userDetailsService(this.userDetailsService);
+        http.logout()
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID", "remember-me");
+    }
+```
+
+It's a standard Spring configuration for Remember me for example here: https://www.baeldung.com/spring-security-remember-me
+
+You need a private key and also a userDetailsService (in your application with a real authentication it might be unnecessary).
+By default it will create a cookie "remember-me" after login with the checkbox checked.
+
+When you logged out, you need to clear this cookie.
+
+### Logout
+
+To logout from the application you can call:
+```
+VaadinServletRequest.getCurrent().getHttpServletRequest().logout();
+```
 
 ## Running the application
 
@@ -23,25 +79,3 @@ ready to be deployed. The file can be found in the `target` folder after the bui
 Once the JAR file is built, you can run it using
 `java -jar target/rememberme-1.0-SNAPSHOT.jar`
 
-## Project structure
-
-- `MainLayout.java` in `src/main/java` contains the navigation setup (i.e., the
-  side/top bar and the main menu). This setup uses
-  [App Layout](https://vaadin.com/components/vaadin-app-layout).
-- `views` package in `src/main/java` contains the server-side Java views of your application.
-- `views` folder in `frontend/` contains the client-side JavaScript views of your application.
-- `themes` folder in `frontend/` contains the custom CSS styles.
-
-## Useful links
-
-- Read the documentation at [vaadin.com/docs](https://vaadin.com/docs).
-- Follow the tutorials at [vaadin.com/tutorials](https://vaadin.com/tutorials).
-- Watch training videos and get certified at [vaadin.com/learn/training](https://vaadin.com/learn/training).
-- Create new projects at [start.vaadin.com](https://start.vaadin.com/).
-- Search UI components and their usage examples at [vaadin.com/components](https://vaadin.com/components).
-- View use case applications that demonstrate Vaadin capabilities at [vaadin.com/examples-and-demos](https://vaadin.com/examples-and-demos).
-- Discover Vaadin's set of CSS utility classes that enable building any UI without custom CSS in the [docs](https://vaadin.com/docs/latest/ds/foundation/utility-classes). 
-- Find a collection of solutions to common use cases in [Vaadin Cookbook](https://cookbook.vaadin.com/).
-- Find Add-ons at [vaadin.com/directory](https://vaadin.com/directory).
-- Ask questions on [Stack Overflow](https://stackoverflow.com/questions/tagged/vaadin) or join our [Discord channel](https://discord.gg/MYFq5RTbBn).
-- Report issues, create pull requests in [GitHub](https://github.com/vaadin/platform).
