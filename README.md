@@ -8,7 +8,7 @@ It's an example of an implementation of Spring Security "Remember Me".
 
 ### Add the Remember Me checkbox in the login view
 
-You need to create a checkbox with name="remember-me" that will be posted in the login form.It's unfortunately not supported by the Vaadin login component.
+You need to create a checkbox with name="remember-me" that will be posted in the login form.It's unfortunately not supported by the Vaadin login component. (See this ticket: https://github.com/vaadin/web-components/issues/737 )
 ```
     public void addRememberMeCheckbox() {
         Checkbox rememberMe = new Checkbox("Remember me");
