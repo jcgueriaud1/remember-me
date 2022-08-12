@@ -6,11 +6,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.vaadin.jchristophe.views.login.LoginView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @EnableWebSecurity
 @Configuration
@@ -43,7 +47,13 @@ public class SecurityConfiguration extends VaadinWebSecurityConfigurerAdapter {
         http.rememberMe().key(privateSecretKeyToChange).tokenValiditySeconds(7200).userDetailsService(this.userDetailsService);
         http.logout().logoutRequestMatcher(new AntPathRequestMatcher(LOGOUT_URL, "GET"))
                 .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID", "remember-me");
+                .deleteCookies("JSESSIONID", "remember-me").logoutSuccessHandler(
+                        (HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {
+                            System.out.println("Logout Success handler called");
+                }).addLogoutHandler(
+                        (HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {
+                            System.out.println("Logout handler called");
+                        });
     }
 
     @Override
