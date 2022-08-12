@@ -10,7 +10,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.vaadin.jchristophe.views.login.LoginView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +44,7 @@ public class SecurityConfiguration extends VaadinWebSecurityConfigurerAdapter {
         setLoginView(http, LoginView.class, LOGOUT_SUCCESS_URL);
         String privateSecretKeyToChange = "JKJDSKLDJdJSisdjsdfjmkdjdfkljkJKLjlk";
         http.rememberMe().key(privateSecretKeyToChange).tokenValiditySeconds(7200).userDetailsService(this.userDetailsService);
-        http.logout().logoutRequestMatcher(new AntPathRequestMatcher(LOGOUT_URL, "GET"))
+        http.logout()
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID", "remember-me").logoutSuccessHandler(
                         (HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {
